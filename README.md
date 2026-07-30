@@ -2,6 +2,24 @@
 
 React + Vite frontend for the Notes App.
 
+## How to run locally
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Start the dev server:
+
+```bash
+npm run dev
+```
+
+3. Open the app at `http://localhost:5173`.
+
+This frontend depends on both the auth service and the notes API being running.
+
 ## What it provides
 
 - Registration and login flows
