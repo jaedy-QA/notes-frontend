@@ -4,6 +4,8 @@ React + Vite frontend for the Notes App.
 
 ## How to run locally
 
+Important: for the full app, start it from the parent `my-notes-app` folder with `npm run dev`. Running this frontend alone from this folder will not start the backend services automatically.
+
 1. Install dependencies:
 
 ```bash
