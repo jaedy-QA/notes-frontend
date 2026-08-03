@@ -68,7 +68,9 @@ export default function App() {
   // Auth Handlers
   const handleAuthSuccess = (u: User) => {
     setUser(u);
-    addToast('success', `Welcome back, ${u.name}!`);
+    // Mode-neutral greeting: correct for both a new account and a returning
+    // sign-in, so this path does not need to know which flow ran.
+    addToast('success', `Hi, ${u.name}!`);
   };
 
   const handleLogout = async () => {
