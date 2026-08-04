@@ -3,8 +3,10 @@ import { User, LogIn, UserPlus, FileText, ArrowRight } from 'lucide-react';
 import { authClient } from '../api/authClient.js';
 import { User as UserType } from '../../../shared-types/src/index.js';
 
+export type AuthMode = 'login' | 'register';
+
 interface AuthFormProps {
-  onSuccess: (user: UserType) => void;
+  onSuccess: (user: UserType, mode: AuthMode) => void;
   onError: (msg: string) => void;
 }
 
@@ -22,10 +24,10 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSuccess, onError }) => {
       if (isRegister) {
         if (!name.trim()) throw new Error('Name is required.');
         const session = await authClient.register({ email, password, name });
-        onSuccess(session.user);
+        onSuccess(session.user, 'register');
       } else {
         const session = await authClient.login({ email, password });
-        onSuccess(session.user);
+        onSuccess(session.user, 'login');
       }
     } catch (err: any) {
       onError(err.message || 'Authentication failed');
@@ -41,7 +43,8 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSuccess, onError }) => {
         email: 'demo@example.com',
         password: 'password123'
       });
-      onSuccess(session.user);
+      // The demo account is pre-seeded, so it is always a returning sign-in.
+      onSuccess(session.user, 'login');
     } catch (err: any) {
       onError(err.message || 'Demo login failed');
     } finally {
