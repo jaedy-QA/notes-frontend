@@ -265,6 +265,7 @@ export default function App() {
       <NoteEditorModal
         isOpen={isEditorOpen}
         note={editingNote}
+        userId={user.id}
         onClose={() => setIsEditorOpen(false)}
         onSave={handleSaveNote}
         onRestore={handleRestoreNote}
