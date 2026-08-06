@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { User, Note } from '../../shared-types/src/index.js';
 import { authClient } from './api/authClient.js';
 import { notesClient } from './api/notesClient.js';
-import { AuthForm } from './components/AuthForm.tsx';
+import { AuthForm, AuthMode } from './components/AuthForm.tsx';
 import { Header } from './components/Header.tsx';
 import { NoteCard } from './components/NoteCard.tsx';
 import { NoteEditorModal } from './components/NoteEditorModal.tsx';
@@ -66,11 +66,13 @@ export default function App() {
   }, [fetchNotes]);
 
   // Auth Handlers
-  const handleAuthSuccess = (u: User, isNewAccount: boolean) => {
+  const handleAuthSuccess = (u: User, mode: AuthMode) => {
     setUser(u);
     addToast(
       'success',
-      isNewAccount ? `Welcome, ${u.name}! Your account is ready.` : `Welcome back, ${u.name}!`
+      mode === 'register'
+        ? `Welcome, ${u.name}! Your account is ready.`
+        : `Welcome back, ${u.name}!`
     );
   };
 
