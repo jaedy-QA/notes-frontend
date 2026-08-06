@@ -6,7 +6,15 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:registration": "playwright test tests/registration",
+    "test:signin": "playwright test tests/sign-in",
+    "test:create-notes": "playwright test tests/create-notes",
+    "test:edit-notes": "playwright test tests/edit-notes",
+    "test:report": "playwright show-report"
   },
   "dependencies": {
     "lucide-react": "^0.546.0",
@@ -15,6 +23,7 @@
     "react-dom": "^19.0.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.56.0",
     "@tailwindcss/vite": "^4.1.14",
     "@types/node": "^22.14.0",
     "@vitejs/plugin-react": "^5.0.4",

@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { X, Save, AlertTriangle, RotateCcw } from 'lucide-react';
 import { Note, NOTE_CATEGORIES, NoteCategory } from '../../../shared-types/src/index.js';
+import { writeDraft } from '../utils/drafts.js';
+
+/** Debounce between the last keystroke and the autosave write. */
+const AUTOSAVE_DELAY_MS = 500;
 
 interface NoteEditorModalProps {
   isOpen: boolean;
   note: Note | null;
+  /** Drafts are namespaced per user, so the editor needs the signed-in id. */
+  userId: string;
   onClose: () => void;
   onSave: (data: { title: string; content: string; category: string }) => Promise<void>;
   onRestore?: (id: string) => Promise<void>;
@@ -13,6 +19,7 @@ interface NoteEditorModalProps {
 export const NoteEditorModal: React.FC<NoteEditorModalProps> = ({
   isOpen,
   note,
+  userId,
   onClose,
   onSave,
   onRestore
@@ -22,6 +29,8 @@ export const NoteEditorModal: React.FC<NoteEditorModalProps> = ({
   const [category, setCategory] = useState<NoteCategory>('General');
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [isDirty, setIsDirty] = useState(false);
+  const [draftStatus, setDraftStatus] = useState<'' | 'saving' | 'saved'>('');
 
   const isArchived = note?.isArchived || false;
 
@@ -36,7 +45,32 @@ export const NoteEditorModal: React.FC<NoteEditorModalProps> = ({
       setCategory('General');
     }
     setErrorMsg('');
+    // Populating the form is not a user edit, so it must not trigger an autosave.
+    setIsDirty(false);
+    setDraftStatus('');
   }, [note, isOpen]);
+
+  // Autosave the draft once the user has actually typed something. Archived
+  // notes have every field disabled, so they can never become dirty.
+  useEffect(() => {
+    if (!isDirty) return;
+
+    setDraftStatus('saving');
+    const timer = setTimeout(() => {
+      const stored = writeDraft(userId, note?.id, {
+        title,
+        content,
+        category,
+        savedAt: new Date().toISOString(),
+        baseUpdatedAt: note?.updatedAt
+      });
+      setDraftStatus(stored ? 'saved' : '');
+    }, AUTOSAVE_DELAY_MS);
+
+    return () => clearTimeout(timer);
+  }, [isDirty, title, content, category, userId, note]);
+
+  const markDirty = () => setIsDirty(true);
 
   if (!isOpen) return null;
 
@@ -140,7 +174,10 @@ export const NoteEditorModal: React.FC<NoteEditorModalProps> = ({
               type="text"
               disabled={isArchived}
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => {
+                setTitle(e.target.value);
+                markDirty();
+              }}
               placeholder="e.g. Weekly QA Meeting Notes"
               className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-500 disabled:opacity-60 transition-colors"
             />
@@ -154,7 +191,10 @@ export const NoteEditorModal: React.FC<NoteEditorModalProps> = ({
               id="select-note-category"
               disabled={isArchived}
               value={category}
-              onChange={(e) => setCategory(e.target.value as NoteCategory)}
+              onChange={(e) => {
+                setCategory(e.target.value as NoteCategory);
+                markDirty();
+              }}
               className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3.5 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-zinc-500 disabled:opacity-60 transition-colors"
             >
               {NOTE_CATEGORIES.map((cat) => (
@@ -174,7 +214,10 @@ export const NoteEditorModal: React.FC<NoteEditorModalProps> = ({
               disabled={isArchived}
               rows={6}
               value={content}
-              onChange={(e) => setContent(e.target.value)}
+              onChange={(e) => {
+                setContent(e.target.value);
+                markDirty();
+              }}
               placeholder="Write your note details here..."
               className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-500 disabled:opacity-60 transition-colors resize-y"
             />
@@ -182,6 +225,12 @@ export const NoteEditorModal: React.FC<NoteEditorModalProps> = ({
 
           {/* Footer Controls */}
           <div className="pt-4 border-t border-zinc-800 flex items-center justify-end gap-3">
+            {draftStatus && (
+              <span id="draft-status" className="mr-auto text-xs text-zinc-500">
+                {draftStatus === 'saving' ? 'Saving...' : 'Draft saved'}
+              </span>
+            )}
+
             <button
               id="btn-cancel-modal"
               type="button"
