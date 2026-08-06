@@ -66,9 +66,12 @@ export default function App() {
   }, [fetchNotes]);
 
   // Auth Handlers
-  const handleAuthSuccess = (u: User) => {
+  const handleAuthSuccess = (u: User, isNewAccount: boolean) => {
     setUser(u);
-    addToast('success', `Welcome back, ${u.name}!`);
+    addToast(
+      'success',
+      isNewAccount ? `Welcome, ${u.name}! Your account is ready.` : `Welcome back, ${u.name}!`
+    );
   };
 
   const handleLogout = async () => {
