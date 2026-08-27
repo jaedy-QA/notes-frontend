@@ -35,13 +35,15 @@ export default defineConfig({
     // { name: 'webkit', use: { ...devices['Desktop Safari'] } },
   ],
 
-  /* `npm run dev` at the repo root boots auth-service (3001), notes-api (3002) and vite (5173). */
+  /* Locally the parent folder's `npm run dev` boots auth-service (3001), notes-api
+     (3002) and vite (5173) together. CI has only this repo checked out, so there
+     ci-stack.sh fetches and starts the two backends itself. */
   webServer: {
-    command: 'npm run dev',
-    cwd: '..',
+    command: process.env.CI ? 'bash ./scripts/ci-stack.sh' : 'npm run dev',
+    ...(process.env.CI ? {} : { cwd: '..' }),
     url: BASE_URL,
     reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
+    timeout: 180_000,
     stdout: 'pipe',
     stderr: 'pipe'
   }
