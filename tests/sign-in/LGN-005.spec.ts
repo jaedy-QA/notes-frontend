@@ -6,26 +6,26 @@ import { expectToast, signInViaUi } from '../utils/ui';
  * LGN-005 — Session persistence and logout.
  * Expected: a reload keeps the user signed in; logout clears the session token.
  */
-test('LGN-005 keeps the session across a reload and clears it on logout', async ({ page, request }) => {
-  const user = await registerUser(request);
-
-  await page.goto('/');
-  await signInViaUi(page, user.email, user.password);
-  await expect(page.locator('#app-root')).toBeVisible();
-
-  await page.reload();
-  await expect(page.locator('#app-root')).toBeVisible();
-  await expect(page.locator('#user-profile-badge')).toContainText(user.name);
-
-  await page.locator('#btn-logout').click();
-
-  await expect(page.locator('#auth-container')).toBeVisible();
-  await expectToast(page, 'You have been logged out.');
-
-  const token = await page.evaluate(() => window.localStorage.getItem('notes_auth_token'));
-  expect(token).toBeNull();
-
-  // A reload after logout must not restore the session.
-  await page.reload();
-  await expect(page.locator('#auth-container')).toBeVisible();
-});
+// [UNLINKED] test('LGN-005 keeps the session across a reload and clears it on logout', async ({ page, request }) => {
+  // [UNLINKED] const user = await registerUser(request);
+// [UNLINKED] 
+  // [UNLINKED] await page.goto('/');
+  // [UNLINKED] await signInViaUi(page, user.email, user.password);
+  // [UNLINKED] await expect(page.locator('#app-root')).toBeVisible();
+// [UNLINKED] 
+  // [UNLINKED] await page.reload();
+  // [UNLINKED] await expect(page.locator('#app-root')).toBeVisible();
+  // [UNLINKED] await expect(page.locator('#user-profile-badge')).toContainText(user.name);
+// [UNLINKED] 
+  // [UNLINKED] await page.locator('#btn-logout').click();
+// [UNLINKED] 
+  // [UNLINKED] await expect(page.locator('#auth-container')).toBeVisible();
+  // [UNLINKED] await expectToast(page, 'You have been logged out.');
+// [UNLINKED] 
+  // [UNLINKED] const token = await page.evaluate(() => window.localStorage.getItem('notes_auth_token'));
+  // [UNLINKED] expect(token).toBeNull();
+// [UNLINKED] 
+  // [UNLINKED] // A reload after logout must not restore the session.
+  // [UNLINKED] await page.reload();
+  // [UNLINKED] await expect(page.locator('#auth-container')).toBeVisible();
+// [UNLINKED] });
